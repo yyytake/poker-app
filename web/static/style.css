@@ -1,0 +1,2273 @@
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont,
+        "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #0b1a14;
+    color: #eaf5ef;
+    min-height: 100vh;
+}
+
+.screen {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ==============================
+   加入房间
+   ============================== */
+
+.join-card {
+    margin: auto;
+    width: min(420px, 92vw);
+    padding: 28px 22px 34px;
+    background: #12261e;
+    border-radius: 18px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, .45);
+}
+
+.join-card h1 {
+    margin: 0 0 22px;
+    font-size: 26px;
+    text-align: center;
+    letter-spacing: 2px;
+}
+
+.join-card label {
+    display: block;
+    margin: 14px 0 6px;
+    font-size: 13px;
+    color: #9fc5b4;
+}
+
+.join-card input {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: 1px solid #24503c;
+    background: #0d1f18;
+    color: #eaf5ef;
+    outline: none;
+}
+
+.join-card input:focus {
+    border-color: #37c98a;
+}
+
+.blind-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.blind-row input {
+    flex: 1;
+}
+
+.advanced-toggle {
+    margin-top: 18px;
+    text-align: center;
+    font-size: 13px;
+    color: #7fae9b;
+    cursor: pointer;
+}
+
+.advanced-panel {
+    margin-top: 6px;
+}
+
+button {
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+}
+
+.primary {
+    width: 100%;
+    margin-top: 22px;
+    padding: 14px;
+    font-size: 17px;
+    font-weight: 600;
+    border-radius: 12px;
+    background: linear-gradient(
+        135deg, #2fbf82, #24a06b
+    );
+    color: #062015;
+}
+
+.primary:active {
+    transform: translateY(1px);
+}
+
+.primary.small {
+    width: auto;
+    margin: 0;
+    padding: 9px 20px;
+    font-size: 15px;
+    border-radius: 9px;
+}
+
+.error {
+    margin-top: 12px;
+    min-height: 18px;
+    color: #ff8b7a;
+    font-size: 13px;
+    text-align: center;
+}
+
+.room-list {
+    margin-top: 24px;
+    border-top: 1px solid #1e3c2e;
+    padding-top: 14px;
+    /* 每个房间都带在线名单，房间多了会很长，给个上限 */
+    max-height: 40vh;
+    overflow-y: auto;
+}
+
+.room-list-title {
+    font-size: 12px;
+    color: #6f9c88;
+    margin-bottom: 8px;
+}
+
+/* 「添加到主屏幕」提示：只给浏览器里的用户看 */
+.install-hint {
+    margin-top: 14px;
+    padding: 9px 12px;
+    border-radius: 9px;
+    border: 1px dashed rgba(79, 224, 161, .45);
+    background: rgba(79, 224, 161, .1);
+    color: #9fd8bd;
+    font-size: 12px;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.room-item {
+    padding: 8px 12px;
+    margin-bottom: 6px;
+    background: #0d1f18;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* 自己所在的房间标一下，一眼能找到 */
+.room-item.mine {
+    border: 1px solid #2fbf82;
+    background: #102a20;
+}
+
+.room-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.room-code-name {
+    font-weight: 700;
+    color: #cfe9dc;
+}
+
+.room-online {
+    flex: 0 0 auto;
+    font-size: 12px;
+    font-weight: 700;
+    color: #4fe0a1;
+}
+
+.room-meta {
+    margin-top: 2px;
+    font-size: 11px;
+    color: #6f9c88;
+}
+
+/* 在线名单：一句一个胶囊，自动换行，占地方小 */
+.room-roster {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 7px;
+}
+
+.roster-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .06);
+    font-size: 11px;
+    color: #dcefe6;
+}
+
+.roster-seat {
+    min-width: 12px;
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: #7ba593;
+}
+
+.roster-state {
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.roster-chip.on .roster-state {
+    color: #4fe0a1;
+}
+
+.roster-chip.off {
+    opacity: .6;
+}
+
+.roster-chip.off .roster-state {
+    color: #9fb5a9;
+}
+
+.roster-chip.out .roster-state {
+    color: #8a8a8a;
+}
+
+.roster-chip.wait .roster-state {
+    color: #ffd166;
+}
+
+.room-empty {
+    font-size: 13px;
+    color: #6f9c88;
+}
+
+/* ==============================
+   顶栏
+   ============================== */
+
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 10px 11px;
+    background: #10251c;
+    font-size: 13px;
+}
+
+.room-info {
+    /* 房间号和复制按钮都不能被压扁，
+       否则按钮文字会折成竖排把顶栏撑高 */
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.room-code {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #4fe0a1;
+}
+
+.mini {
+    flex: 0 0 auto;
+    padding: 5px 10px;
+    font-size: 12px;
+    border-radius: 7px;
+    background: #1d3d2e;
+    color: #c7e8d8;
+    /* 按钮文字一律不换行：折行会把顶栏撑高 */
+    white-space: nowrap;
+}
+
+/* 音乐被浏览器抢了焦点、还没救回来时闪一下，
+   提示点一下就能恢复 */
+.mini.warn {
+    border: 1px solid #ffb347;
+    color: #ffb347;
+    animation: bgmWarn 1.2s ease-in-out infinite;
+}
+
+@keyframes bgmWarn {
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: .4;
+    }
+}
+
+.hand-info {
+    /* 只剩它可以被压缩，实在放不下就省略号收尾 */
+    flex: 0 1 auto;
+    min-width: 0;
+    color: #9fc5b4;
+    font-size: 12px;
+}
+
+#handInfo {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.conn {
+    color: #4fe0a1;
+    font-size: 18px;
+}
+
+.conn.off {
+    color: #ff8b7a;
+}
+
+/* ==============================
+   牌桌（具象化：椭圆绿桌 + 木边）
+   ============================== */
+
+.table-wrap {
+    padding: 24px 22px 0;
+}
+
+.table {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    border-radius: 50% / 50%;
+    background:
+        radial-gradient(
+            ellipse at center,
+            #25935f 0%,
+            #15784a 55%,
+            #0c4a2c 100%
+        );
+    border: 10px solid #6b4423;
+    box-shadow:
+        0 0 0 3px #4a2f17,
+        inset 0 0 50px rgba(0, 0, 0, .45),
+        0 14px 32px rgba(0, 0, 0, .45);
+    overflow: visible;
+}
+
+.table-inner {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 64%;
+    text-align: center;
+    pointer-events: none;
+}
+
+/* 底池和街道标签改成绝对定位挂在公牌上方，不参与居中。
+   原来三个是竖排居中的，公牌作为最下面一块必然偏低，
+   正好顶到下方座位的名片。现在只有公牌参与居中，
+   它就落在牌桌正中，上下都留出余量。 */
+.pot,
+.phase {
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    transform: translateX(-50%);
+    margin-left: 0;
+    margin-right: 0;
+    white-space: nowrap;
+}
+
+.community {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    flex-wrap: wrap;
+    min-height: 36px;
+}
+
+/* 公牌：整体收窄，横向必须完全让开左右两侧的座位 */
+.community .card {
+    min-width: 26px;
+    height: 36px;
+    padding: 0 3px;
+    font-size: 14px;
+    border-radius: 5px;
+}
+
+.pot {
+    margin-top: 8px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #ffe08a;
+}
+
+.phase {
+    margin-top: 2px;
+    font-size: 12px;
+    color: #bcdccb;
+}
+
+/* 座位：围绕牌桌环形排布（由 JS 定位） */
+
+.seats {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.seat {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    width: 76px;
+    padding: 0;
+    font-size: 10px;
+    line-height: 1.2;
+    text-align: center;
+    overflow: visible;
+    /* 容器 .seats 是 pointer-events:none，
+       这里必须重新打开，否则长按名片收不到任何事件 */
+    pointer-events: auto;
+}
+
+/* 人多时再降一档，并隐藏座位内底牌，避免互相压住 */
+.seats.many .seat {
+    width: 58px;
+    font-size: 9px;
+}
+
+.seats.many .seat-cards {
+    display: none;
+}
+
+.seat.eliminated {
+    opacity: .5;
+}
+
+/* 思考倒计时：单行紧凑条，不再占一大块高度 */
+
+.turn-timer {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 10px 14px 0;
+}
+
+.turn-timer-num {
+    flex: 0 0 auto;
+    min-width: 54px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #ffe08a;
+    text-align: right;
+}
+
+.turn-timer.low .turn-timer-num {
+    color: #ff8b7a;
+}
+
+.turn-timer-bar {
+    flex: 1;
+    height: 7px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, .14);
+    overflow: hidden;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, .5);
+}
+
+.turn-timer-fill {
+    height: 100%;
+    background: linear-gradient(
+        90deg, #2fbf82, #24a06b
+    );
+    transition: width .25s linear;
+}
+
+.turn-timer.low .turn-timer-fill {
+    background: linear-gradient(
+        90deg, #ff6b5a, #d6402f
+    );
+}
+
+/* 准备徽标 */
+
+.badge.ready {
+    background: #2fbf82;
+    color: #062015;
+}
+
+.ready-done {
+    background: linear-gradient(
+        135deg, #2fbf82, #24a06b
+    ) !important;
+    color: #062015 !important;
+}
+
+/* 加注关键注额刻度 */
+
+.raise-ticks {
+    position: relative;
+    height: 26px;
+    margin-top: 6px;
+}
+
+.raise-tick {
+    position: absolute;
+    transform: translateX(-50%);
+    font-size: 11px;
+    color: #ffd166;
+    white-space: nowrap;
+}
+
+.raise-tick::before {
+    content: "";
+    display: block;
+    width: 2px;
+    height: 6px;
+    margin: 0 auto 2px;
+    background: #ffd166;
+}
+
+/* 最左 / 最右的刻度贴边，避免被屏幕边缘切掉 */
+.raise-tick.start {
+    transform: translateX(0);
+}
+
+.raise-tick.start::before {
+    margin-left: 0;
+    margin-right: auto;
+}
+
+.raise-tick.end {
+    transform: translateX(-100%);
+}
+
+.raise-tick.end::before {
+    margin-left: auto;
+    margin-right: 0;
+}
+
+.raise-quick {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.raise-quick button {
+    flex: 1;
+}
+
+.raise-input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    font-size: 13px;
+    color: #9fc5b4;
+}
+
+.raise-input-row input {
+    flex: 1;
+    padding: 8px 10px;
+    font-size: 15px;
+    border-radius: 8px;
+    border: 1px solid #24503c;
+    background: #0d1f18;
+    color: #eaf5ef;
+    outline: none;
+}
+
+.seat.acting {
+    border-color: #ffd166;
+    box-shadow: 0 0 0 2px rgba(255, 209, 102, .35);
+}
+
+.seat.folded {
+    opacity: .45;
+}
+
+.seat.me {
+    background: rgba(11, 45, 31, .95);
+    border-color: #37c98a;
+}
+
+.seat-name {
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+/* 名字过长时省略，避免把座位撑宽 */
+.seat-label {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.seat-chips {
+    font-size: 11px;
+    color: #ffe08a;
+    margin-top: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.seat-net {
+    margin-left: 4px;
+    font-weight: 700;
+    font-size: 10px;
+}
+
+.seat-bet {
+    margin-top: 1px;
+    font-size: 10px;
+    color: #9fc5b4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.badge {
+    display: inline-block;
+    flex: 0 0 auto;
+    padding: 0 4px;
+    border-radius: 4px;
+    font-size: 9px;
+    line-height: 14px;
+    font-weight: 700;
+}
+
+.badge.dealer {
+    background: #ffd166;
+    color: #3a2a00;
+}
+
+.badge.allin {
+    background: #ff6b5a;
+    color: #2a0800;
+}
+
+.badge.out {
+    background: #555;
+    color: #ddd;
+}
+
+.badge.offline {
+    background: #3a4a42;
+    color: #9fb5a9;
+}
+
+.seat-cards {
+    display: flex;
+    justify-content: center;
+    gap: 3px;
+    margin-top: 3px;
+}
+
+/* 座位里的小牌：明显缩小，避免把座位撑大、盖住公牌 */
+.seat-cards .card {
+    min-width: 19px;
+    height: 25px;
+    padding: 0 3px;
+    font-size: 11px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .4);
+}
+
+/* 扑克牌 */
+
+.card {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 30px;
+    height: 40px;
+    padding: 2px 5px;
+    border-radius: 6px;
+    background: #fff;
+    color: #16232c;
+    font-weight: 700;
+    font-size: 15px;
+    line-height: 1;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, .4);
+}
+
+/* 牌面排布照 PokerCard：点数在上，花色紧贴其下 */
+.card-rank {
+    display: block;
+    line-height: 1;
+}
+
+.card-suit {
+    display: block;
+    margin-top: 1px;
+    font-size: .74em;
+    line-height: 1;
+    opacity: .92;
+}
+
+.card.red {
+    color: #d6263c;
+}
+
+.card.back {
+    background: repeating-linear-gradient(
+        45deg, #2b4b6f, #2b4b6f 5px,
+        #35577f 5px, #35577f 10px
+    );
+    color: transparent;
+}
+
+/* ==============================
+   结果与提示
+   ============================== */
+
+.result {
+    margin: 10px 12px 0;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: #16342a;
+    border: 1px solid #2c6a50;
+    font-size: 13px;
+}
+
+.result-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #ffd166;
+    margin-bottom: 6px;
+}
+
+.result-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+}
+
+.delta-up {
+    color: #4fe0a1;
+}
+
+.delta-down {
+    color: #ff8b7a;
+}
+
+.message {
+    margin: 10px 14px 0;
+    min-height: 18px;
+    text-align: center;
+    font-size: 13px;
+    color: #9fc5b4;
+}
+
+/* ==============================
+   我的底牌
+   ============================== */
+
+.my-cards {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 12px 0 4px;
+    min-height: 56px;
+}
+
+.my-cards .card {
+    min-width: 52px;
+    height: 72px;
+    font-size: 24px;
+    border-radius: 9px;
+}
+
+/* ==============================
+   操作区
+   ============================== */
+
+.action-bar {
+    margin: 6px 12px 0;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 6px;
+}
+
+.act {
+    flex: 1;
+    padding: 13px 0;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 11px;
+    background: #1d3d2e;
+    color: #d8f1e5;
+}
+
+.act:disabled {
+    opacity: .35;
+}
+
+.act.fold {
+    background: #43202a;
+    color: #ffb3a8;
+}
+
+.act.check {
+    background: #234a38;
+}
+
+.act.call {
+    background: #2fbf82;
+    color: #062015;
+}
+
+.act.raise {
+    background: #c9822f;
+    color: #241203;
+}
+
+.act.allin {
+    background: #b3342a;
+    color: #ffe9e6;
+}
+
+.raise-panel {
+    margin-top: 10px;
+    padding: 12px;
+    border-radius: 12px;
+    background: #16342a;
+}
+
+.raise-head {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.raise-value {
+    font-weight: 700;
+    color: #ffd166;
+}
+
+#raiseSlider {
+    width: 100%;
+}
+
+.raise-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+/* ==============================
+   控制与日志
+   ============================== */
+
+.control-bar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin: 12px;
+}
+
+.control-bar .primary {
+    margin: 0;
+    flex: 1;
+}
+
+.waiting {
+    margin: 12px;
+    text-align: center;
+    font-size: 14px;
+    color: #9fc5b4;
+}
+
+.log-panel {
+    margin: 4px 14px 10px;
+    font-size: 13px;
+    color: #9fc5b4;
+}
+
+.log-panel summary {
+    cursor: pointer;
+    padding: 6px 0;
+}
+
+.log-list {
+    max-height: 160px;
+    overflow-y: auto;
+    padding: 6px 0;
+    line-height: 1.7;
+}
+
+.leave {
+    margin: 0 14px 24px;
+    padding: 11px;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 10px;
+    /* 掉线的人多半是直接关掉页面，根本不知道要走这里 ——
+       做成显眼的告警色，提醒「走之前先点它」。
+       不然座位一直占着，别人既等不到你，也开不了下一手。 */
+    border: 1px solid rgba(255, 139, 122, .7);
+    background: rgba(255, 139, 122, .12);
+    color: #ff8b7a;
+}
+
+.leave:active {
+    background: rgba(255, 139, 122, .24);
+}
+
+/* 托管按钮：平时低调，托管中变绿并显示倒计时 */
+.auto {
+    display: block;
+    margin: 10px 14px 0;
+    padding: 9px 12px;
+    font-size: 13px;
+    font-weight: 700;
+    border-radius: 10px;
+    border: 1px solid #3a4a42;
+    background: #12261e;
+    color: #c7e8d8;
+}
+
+.auto.on {
+    border-color: #2fbf82;
+    background: #123024;
+    color: #4fe0a1;
+}
+
+/* 名片上的「托管」标记 */
+.badge.auto {
+    background: #2fbf82;
+    color: #062015;
+}
+
+/* ==============================
+   买入
+   ============================== */
+
+.buyin {
+    margin: 8px 12px 0;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: #16342a;
+    border: 1px solid #2c6a50;
+}
+
+.buyin-head {
+    font-size: 14px;
+    color: #9fc5b4;
+    margin-bottom: 8px;
+}
+
+.buyin input[type="number"] {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 18px;
+    border-radius: 10px;
+    border: 1px solid #24503c;
+    background: #0d1f18;
+    color: #eaf5ef;
+    outline: none;
+}
+
+.buyin-quick {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.buyin-quick button {
+    flex: 1;
+    padding: 8px 0;
+}
+
+.checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    font-size: 13px;
+    color: #9fc5b4;
+}
+
+.checkbox input {
+    width: 18px;
+    height: 18px;
+}
+
+.buyin-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+/* 归还的说明 */
+.buyin-tip {
+    margin-top: 12px;
+    font-size: 11px;
+    line-height: 1.6;
+    color: #8fb3a3;
+}
+
+/* ==============================
+   长期账本
+   ============================== */
+
+.ledger {
+    margin: 8px 12px 0;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: #12261e;
+    border: 1px solid #24503c;
+    font-size: 13px;
+}
+
+.ledger-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #4fe0a1;
+    margin-bottom: 8px;
+}
+
+.ledger-title.small {
+    font-size: 12px;
+    color: #7fae9b;
+    margin-top: 12px;
+}
+
+.ledger-row {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1.4fr 1fr 0.7fr;
+    gap: 4px;
+    padding: 5px 0;
+    border-bottom: 1px solid #1b3a2c;
+}
+
+.ledger-row.head {
+    color: #7fae9b;
+    font-size: 12px;
+    border-bottom-color: #2c6a50;
+}
+
+.ledger-row span:not(:first-child) {
+    text-align: right;
+}
+
+.ledger-empty {
+    color: #7fae9b;
+    padding: 6px 0;
+}
+
+.ledger-buyins {
+    color: #9fc5b4;
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+@media (min-width: 720px) {
+    .seat {
+        width: 88px;
+    }
+
+    .seat-name {
+        font-size: 11px;
+    }
+
+    .seat-chips {
+        font-size: 13px;
+    }
+}
+
+/* ==============================
+   顶栏小工具按钮（音乐 / 横竖屏）
+   ============================== */
+
+.tool {
+    min-width: 24px;
+    padding: 2px 4px;
+    font-size: 12px;
+    line-height: 1.3;
+    text-align: center;
+    opacity: .6;
+}
+
+.tool.on {
+    color: #ffd166;
+    border-color: #6b5a2a;
+    opacity: 1;
+}
+
+/* ==============================
+   小盲 / 大盲标记
+   ============================== */
+
+.badge.sb {
+    background: #4fa3ff;
+    color: #04182c;
+}
+
+.badge.bb {
+    background: #a06bff;
+    color: #150428;
+}
+
+/* ==============================
+   声音设置
+   ============================== */
+
+.sound-panel {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 76;
+    padding: 10px 12px 16px;
+    border-radius: 16px 16px 0 0;
+    background: linear-gradient(180deg, #1d1810, #120e08);
+    border-top: 2px solid #6b4423;
+    box-shadow: 0 -12px 30px rgba(0, 0, 0, .65);
+}
+
+.sound-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #ffd98a;
+}
+
+.sound-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 11px 4px;
+    font-size: 14px;
+    color: #f2e7cf;
+    border-bottom: 1px solid rgba(255, 255, 255, .07);
+}
+
+.sound-name {
+    font-weight: 600;
+}
+
+/* 复选框画成滑块，手机上点着也准 */
+.switch {
+    appearance: none;
+    -webkit-appearance: none;
+    position: relative;
+    flex: 0 0 auto;
+    width: 46px;
+    height: 26px;
+    margin: 0;
+    border-radius: 999px;
+    background: #3a4a42;
+    transition: background .18s ease;
+}
+
+.switch::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #cfd8d3;
+    transition: transform .18s ease;
+}
+
+.switch:checked {
+    background: #2fbf82;
+}
+
+.switch:checked::after {
+    transform: translateX(20px);
+    background: #fff;
+}
+
+.sound-tip {
+    margin-top: 10px;
+    font-size: 11px;
+    text-align: center;
+    color: #8fb3a3;
+}
+
+/* 出错提示：点一下重新加载 */
+.message-warn {
+    cursor: pointer;
+    color: #ff8b7a;
+    font-weight: 700;
+}
+
+/* ==============================
+   横屏布局
+   由 body.landscape-ui 控制：
+   手机自然横过来时 JS 会自动加上，
+   也可以在顶栏点「横屏」手动强制。
+   ============================== */
+
+body.landscape-ui .topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 30px;
+    padding: 0 10px;
+    font-size: 12px;
+    z-index: 30;
+}
+
+body.landscape-ui .table-wrap {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 30px;
+    bottom: 76px;
+    padding: 0;
+}
+
+body.landscape-ui .table {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+    border-width: 8px;
+}
+
+body.landscape-ui .turn-timer {
+    position: fixed;
+    top: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 46%;
+    margin: 0;
+    z-index: 32;
+}
+
+body.landscape-ui .turn-timer-num {
+    font-size: 12px;
+}
+
+body.landscape-ui .turn-timer-bar {
+    margin-top: 3px;
+    height: 6px;
+}
+
+body.landscape-ui .my-cards {
+    position: fixed;
+    left: 50%;
+    bottom: 74px;
+    transform: translateX(-50%);
+    margin: 0;
+    min-height: 0;
+    gap: 8px;
+    z-index: 26;
+    pointer-events: none;
+}
+
+body.landscape-ui .my-cards .card {
+    min-width: 40px;
+    height: 56px;
+    font-size: 18px;
+}
+
+body.landscape-ui .action-bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    padding: 8px 10px;
+    background: rgba(10, 26, 20, .96);
+    box-shadow: 0 -6px 18px rgba(0, 0, 0, .45);
+    z-index: 40;
+}
+
+body.landscape-ui .control-bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    padding: 8px 10px;
+    background: rgba(10, 26, 20, .96);
+    box-shadow: 0 -6px 18px rgba(0, 0, 0, .45);
+    z-index: 40;
+}
+
+body.landscape-ui .waiting {
+    position: fixed;
+    left: 12px;
+    top: 36px;
+    margin: 0;
+    font-size: 12px;
+    text-align: left;
+    z-index: 28;
+}
+
+body.landscape-ui .result {
+    position: fixed;
+    left: 10px;
+    top: 58px;
+    width: 32%;
+    max-height: 56%;
+    overflow-y: auto;
+    margin: 0;
+    font-size: 12px;
+    z-index: 24;
+}
+
+/* 用百分比而不是 vw/vh：手动旋转后容器尺寸和视口不一样 */
+body.landscape-ui .buyin,
+body.landscape-ui .ledger {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: min(560px, 88%);
+    max-height: 80%;
+    overflow-y: auto;
+    margin: 0;
+    z-index: 60;
+}
+
+body.landscape-ui .log-panel,
+body.landscape-ui .message {
+    display: none;
+}
+
+body.landscape-ui .leave {
+    position: fixed;
+    right: 8px;
+    bottom: 78px;
+    margin: 0;
+    padding: 6px 10px;
+    font-size: 11px;
+    z-index: 22;
+}
+
+body.landscape-ui .raise-panel {
+    max-height: 48vh;
+    overflow-y: auto;
+}
+
+/* ==============================
+   视觉主题
+   参考德州扑克 App：
+   深色木质牌桌 + 银色金属包边 + 绿绒桌面，
+   座位做成"名片"（名字条 / 头像 / 金额），
+   底牌从名片后侧斜插出来。
+   ============================== */
+
+body {
+    background:
+        radial-gradient(
+            ellipse at 50% -18%,
+            #7d6742 0%,
+            #4b3c25 20%,
+            #2a2114 48%,
+            #141009 100%
+        );
+    background-attachment: fixed;
+    color: #f2e7cf;
+}
+
+.topbar {
+    background: linear-gradient(180deg, #2c2216, #191208);
+    border-bottom: 1px solid #4a3720;
+}
+
+.room-code,
+.hand-info,
+.turn-timer-num,
+.pot,
+.phase,
+.seat-chips,
+.act {
+    font-family: Georgia, "Songti SC",
+        "Times New Roman", serif;
+}
+
+/* ---------------- 牌桌 ---------------- */
+
+.table {
+    border: 6px solid #97a1a7;
+    background:
+        radial-gradient(
+            ellipse at 50% 45%,
+            #21705a 0%,
+            #16533f 46%,
+            #0c3123 100%
+        );
+    background-clip: padding-box;
+    box-shadow:
+        0 0 0 7px #4a2f1c,
+        0 0 0 22px #2b1a0e,
+        0 0 0 24px #150d06,
+        inset 0 0 70px rgba(0, 0, 0, .55),
+        inset 0 2px 0 rgba(255, 255, 255, .16),
+        0 18px 40px rgba(0, 0, 0, .65);
+}
+
+/* 桌面内圈装饰线 + 中央横向花纹 */
+.table::before {
+    content: "";
+    position: absolute;
+    inset: 9% 6%;
+    border: 1.5px solid rgba(255, 255, 255, .13);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.table::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 62%;
+    height: 16%;
+    transform: translate(-50%, -50%);
+    border: 1.5px solid rgba(255, 255, 255, .12);
+    border-radius: 50%;
+    box-shadow: inset 0 0 20px rgba(255, 255, 255, .05);
+    pointer-events: none;
+}
+
+/* 底池胶囊 */
+.pot {
+    display: inline-block;
+    /* 绝对定位挂在公牌正上方，margin-top 没用，靠 bottom 定位 */
+    margin: 0 0 4px;
+    padding: 2px 12px;
+    border-radius: 999px;
+    background: rgba(8, 24, 17, .72);
+    border: 1px solid rgba(255, 255, 255, .2);
+    font-size: 14px;
+    font-weight: 700;
+    color: #ffe6ad;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .8);
+}
+
+/* 街道标签（翻牌 / 转牌 …） */
+.phase {
+    /* 再往上叠一层，让开底池 */
+    margin: 0 0 24px;
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: #f0d79b;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .85);
+}
+
+/* ---------------- 扑克牌 ---------------- */
+
+.card {
+    border: 1px solid #c3ccd2;
+    background: linear-gradient(180deg, #ffffff, #e8edf0);
+    font-family: Georgia, "Times New Roman", serif;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .45);
+}
+
+.community .card {
+    min-width: 26px;
+    height: 36px;
+    font-size: 14px;
+    border-radius: 5px;
+}
+
+/* ---------------- 牌堆 ---------------- */
+
+/* 位置选在公牌正上方：这个位置在任何人数下都不会被座位压住 */
+.deck {
+    position: absolute;
+    left: 50%;
+    top: 34%;
+    width: 26px;
+    height: 36px;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    animation: deckFloat 3.4s ease-in-out infinite;
+}
+
+.deck-card {
+    position: absolute;
+    inset: 0;
+    border-radius: 5px;
+    border: 1px solid #c3ccd2;
+    background:
+        repeating-linear-gradient(
+            45deg,
+            #2b4b6f, #2b4b6f 4px,
+            #35577f 4px, #35577f 8px
+        );
+    box-shadow: 0 2px 5px rgba(0, 0, 0, .5);
+}
+
+.deck-card:nth-child(2) {
+    transform: translate(-2px, -2px);
+}
+
+.deck-card:nth-child(3) {
+    transform: translate(-4px, -4px);
+}
+
+/* 轻轻起伏，让牌堆看起来是「活」的 */
+@keyframes deckFloat {
+    0%, 100% {
+        transform: translate(-50%, -50%);
+    }
+
+    50% {
+        transform: translate(-50%, calc(-50% - 3px));
+    }
+}
+
+/* 发牌时抖一下，像真的在洗牌发牌 */
+.deck.shuffle {
+    animation: deckShuffle .52s ease-in-out;
+}
+
+@keyframes deckShuffle {
+    0% {
+        transform: translate(-50%, -50%) scale(1) rotate(0deg);
+    }
+
+    35% {
+        transform: translate(-50%, -50%) scale(.86)
+            rotate(-7deg);
+    }
+
+    70% {
+        transform: translate(-50%, -50%) scale(1.06)
+            rotate(5deg);
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1) rotate(0deg);
+    }
+}
+
+/* 减少动态效果时只保留静态牌堆 */
+@media (prefers-reduced-motion: reduce) {
+    .deck,
+    .deck.shuffle {
+        animation: none;
+    }
+}
+
+/* ---------------- 座位名片（紧凑型） ---------------- */
+
+.seat {
+    width: 76px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    overflow: visible;
+}
+
+/* 我 / 正在行动：标记只做在名片上，容器本身不画框 */
+.seat.me,
+.seat.acting {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+/* 底牌：斜插在名片后方右上角 */
+.seat-cards {
+    position: absolute;
+    right: -4px;
+    top: -7px;
+    z-index: 1;
+    margin: 0;
+    gap: 2px;
+    transform: rotate(14deg);
+}
+
+.seat-plate {
+    position: relative;
+    z-index: 2;
+    border-radius: 8px;
+    overflow: hidden;
+    background: linear-gradient(180deg, #33383e, #14171a);
+    border: 1.5px solid #8b959c;
+    box-shadow:
+        0 3px 9px rgba(0, 0, 0, .6),
+        inset 0 1px 0 rgba(255, 255, 255, .14);
+}
+
+.seat.me .seat-plate {
+    border-color: #37c98a;
+    box-shadow:
+        0 0 0 1px rgba(55, 201, 138, .4),
+        0 3px 9px rgba(0, 0, 0, .6);
+}
+
+.seat.acting .seat-plate {
+    border-color: #ffd166;
+    box-shadow:
+        0 0 0 2px rgba(255, 209, 102, .45),
+        0 0 14px rgba(255, 209, 102, .5),
+        0 3px 9px rgba(0, 0, 0, .6);
+}
+
+.seat.folded {
+    opacity: .5;
+}
+
+.seat-name {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 2px 4px;
+    font-size: 10px;
+    font-weight: 700;
+    background: rgba(0, 0, 0, .5);
+    border-bottom: 1px solid rgba(255, 255, 255, .1);
+    color: #f2e7cf;
+}
+
+.seat-chips {
+    padding: 1px 4px 3px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #ffd98a;
+    background: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .7);
+}
+
+.seat-net {
+    margin-left: 3px;
+    font-size: 9px;
+}
+
+/* 本轮下注 / 成手牌名：金色小胶囊 */
+.seat-bet {
+    display: inline-block;
+    max-width: 100%;
+    margin: 0 0 3px;
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #f3d492, #cf9a34);
+    color: #2a1c04;
+    font-size: 9px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .5);
+}
+
+/* 座位里的底牌 */
+.seat-cards .card {
+    min-width: 16px;
+    height: 21px;
+    padding: 0 2px;
+    font-size: 9px;
+    border-radius: 3px;
+}
+
+/* 人多时再把字号收一档 */
+.seats.many .seat-name {
+    font-size: 9px;
+}
+
+.seats.many .seat-chips {
+    font-size: 10px;
+}
+
+.seats.many .seat-net {
+    display: none;
+}
+
+/* ---------------- 底部操作按钮 ---------------- */
+
+.action-buttons {
+    gap: 8px;
+}
+
+.act {
+    padding: 15px 0;
+    font-size: 16px;
+    font-weight: 700;
+    border: 1px solid #545c62;
+    border-top-color: #838c93;
+    border-radius: 10px;
+    background: linear-gradient(180deg, #363c42, #1b1f22);
+    color: #f2ede2;
+    box-shadow:
+        0 3px 9px rgba(0, 0, 0, .5),
+        inset 0 1px 0 rgba(255, 255, 255, .16);
+}
+
+.act.fold {
+    background: linear-gradient(180deg, #5c2732, #34151c);
+    color: #ffc9bf;
+}
+
+.act.check {
+    background: linear-gradient(180deg, #33493d, #1c2b23);
+    color: #dff0e6;
+}
+
+.act.call {
+    background: linear-gradient(180deg, #37cb8e, #1d8558);
+    color: #05221a;
+}
+
+.act.raise {
+    background: linear-gradient(180deg, #e0ac4d, #b3771d);
+    color: #2a1a03;
+}
+
+.act.allin {
+    background: linear-gradient(180deg, #c53a2b, #8b2116);
+    color: #fff1ef;
+}
+
+/* ==============================
+   牌桌聊天
+   ============================== */
+
+/* 顶栏入口上的未读角标 */
+.chat-badge {
+    display: inline-block;
+    min-width: 15px;
+    margin-left: 3px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: #d6402f;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 15px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* 展开的聊天面板：从底部升起 */
+.chat {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 70;
+    display: flex;
+    flex-direction: column;
+    max-height: 52vh;
+    padding: 10px 12px 12px;
+    border-radius: 16px 16px 0 0;
+    background: linear-gradient(180deg, #1d1810, #120e08);
+    border-top: 2px solid #6b4423;
+    box-shadow: 0 -12px 30px rgba(0, 0, 0, .65);
+}
+
+.chat-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #ffd98a;
+}
+
+.chat-list {
+    flex: 1;
+    min-height: 84px;
+    overflow-y: auto;
+    padding: 4px 2px;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.chat-item {
+    margin-bottom: 4px;
+    word-break: break-word;
+}
+
+.chat-name {
+    margin-right: 6px;
+    color: #4fe0a1;
+    font-weight: 700;
+}
+
+.chat-text {
+    color: #f2e7cf;
+}
+
+/* 聊天记录里的表情 */
+.chat-emoji {
+    width: 26px;
+    height: 26px;
+    vertical-align: -8px;
+    border-radius: 6px;
+}
+
+/* 聊天记录里的快捷语音：金色小胶囊，一眼区别于打字 */
+.chat-quick {
+    display: inline-block;
+    max-width: 100%;
+    padding: 1px 9px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 217, 138, .45);
+    background: rgba(255, 217, 138, .14);
+    color: #ffd98a;
+    font-size: 12px;
+    word-break: break-word;
+}
+
+.chat-empty {
+    padding: 14px 0;
+    color: #7fae9b;
+    text-align: center;
+}
+
+.chat-input-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding-top: 8px;
+}
+
+.chat-input-row input {
+    flex: 1;
+    min-width: 0;
+    padding: 10px 12px;
+    font-size: 15px;
+    border-radius: 10px;
+    border: 1px solid #4a3720;
+    background: #0d1208;
+    color: #f2e7cf;
+    outline: none;
+}
+
+.chat-input-row input:focus {
+    border-color: #37c98a;
+}
+
+.chat-input-row .primary.small {
+    margin: 0;
+    padding: 10px 18px;
+    font-size: 15px;
+}
+
+/* 表情入口 */
+.emoji-toggle {
+    flex: 0 0 auto;
+    padding: 8px 10px;
+    font-size: 17px;
+    line-height: 1;
+    border-radius: 10px;
+    border: 1px solid #4a3720;
+    background: #0d1208;
+}
+
+.emoji-toggle.on {
+    border-color: #37c98a;
+    background: #123024;
+}
+
+/* 表情格子：自适应铺开，多了可滚动 */
+.emoji-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+    gap: 6px;
+    max-height: 28vh;
+    margin-top: 8px;
+    padding: 8px 6px;
+    overflow-y: auto;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, .34);
+}
+
+.emoji-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px;
+    border-radius: 9px;
+    border: 1px solid transparent;
+    background: transparent;
+}
+
+.emoji-item:active {
+    border-color: #37c98a;
+    background: rgba(255, 255, 255, .1);
+}
+
+.emoji-item img {
+    width: 100%;
+    max-width: 36px;
+    height: auto;
+    pointer-events: none;
+}
+
+/* ==============================
+   表情飘字 & 弹幕
+   ============================== */
+
+/* 表情飘在发送者名片上方 */
+.emoji-pop {
+    position: absolute;
+    z-index: 6;
+    transform: translate(-50%, -100%);
+    pointer-events: none;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .55));
+}
+
+.emoji-pop img {
+    display: block;
+    width: 46px;
+    height: 46px;
+}
+
+/* 弹幕：牌桌底部的滚动播报条 */
+.danmu {
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    bottom: 6px;
+    height: 24px;
+    z-index: 5;
+    overflow: hidden;
+    border-radius: 7px;
+    background: rgba(0, 0, 0, .42);
+    pointer-events: none;
+}
+
+.danmu-item {
+    position: absolute;
+    top: 0;
+    left: 100%;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding-left: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .85);
+}
+
+/* ==============================
+   快捷语音
+   ============================== */
+
+.voice {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 72;
+    padding: 10px 12px 14px;
+    border-radius: 16px 16px 0 0;
+    background: linear-gradient(180deg, #1d1810, #120e08);
+    border-top: 2px solid #6b4423;
+    box-shadow: 0 -12px 30px rgba(0, 0, 0, .65);
+}
+
+.voice-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #ffd98a;
+}
+
+.voice-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 40vh;
+    overflow-y: auto;
+}
+
+.voice-item {
+    width: 100%;
+    padding: 13px 14px;
+    font-size: 15px;
+    font-weight: 600;
+    text-align: left;
+    border-radius: 11px;
+    border: 1px solid #6b5a2a;
+    background: linear-gradient(180deg, #3a2f18, #241d0e);
+    color: #ffe0a3;
+    box-shadow: 0 3px 9px rgba(0, 0, 0, .45);
+}
+
+.voice-item:active {
+    transform: translateY(1px);
+    background: linear-gradient(180deg, #4a3c1e, #2c2410);
+}
+
+/* 座位上方弹出的文字特效 */
+.bubble-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+}
+
+.quick-bubble {
+    position: absolute;
+    max-width: 78%;
+    margin-top: -26px;
+    padding: 7px 11px;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #fff6dc, #f0d79b);
+    color: #3a2600;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.35;
+    text-align: center;
+    word-break: break-word;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, .55);
+    transform: translate(-50%, -100%);
+}
+
+/* 小尖角，指向下面的名片 */
+.quick-bubble::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    margin-left: -6px;
+    border: 6px solid transparent;
+    border-top-color: #f0d79b;
+}
+
+/* 打字消息的气泡：做成深色「消息框」，
+   和金色快捷语音一眼区分开 —— 一个是说话，一个是喊话 */
+.chat-bubble {
+    position: absolute;
+    max-width: 78%;
+    margin-top: -26px;
+    padding: 7px 11px;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #27353b, #121a1e);
+    border: 1px solid rgba(180, 212, 228, .45);
+    color: #eef6fa;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+    text-align: center;
+    word-break: break-word;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, .6);
+    transform: translate(-50%, -100%);
+}
+
+.chat-bubble::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    margin-left: -6px;
+    border: 6px solid transparent;
+    border-top-color: #121a1e;
+}
+
+/* 横屏时居中弹出，别压住底部的操作栏 */
+body.landscape-ui .voice {
+    left: 50%;
+    right: auto;
+    bottom: 14px;
+    transform: translateX(-50%);
+    width: min(520px, 88%);
+    border: 2px solid #6b4423;
+    border-radius: 14px;
+}
+
+/* ==============================
+   互动道具（长按别人名片）
+   ============================== */
+
+/* 长按名片时别让手机弹出选择 / 复制菜单 */
+.seats {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.present {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 74;
+    padding: 10px 12px 14px;
+    border-radius: 16px 16px 0 0;
+    background: linear-gradient(180deg, #1d1810, #120e08);
+    border-top: 2px solid #6b4423;
+    box-shadow: 0 -12px 30px rgba(0, 0, 0, .65);
+}
+
+.present-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #ffd98a;
+}
+
+/* 这个人一共被送过多少 */
+.present-stats {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding: 7px 10px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, .06);
+}
+
+.present-stats-title {
+    flex: 0 0 auto;
+    font-size: 11px;
+    color: #9fb5a9;
+}
+
+.present-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 14px;
+    color: #f2e7cf;
+}
+
+.present-stat b {
+    font-size: 13px;
+    color: #ffd98a;
+}
+
+/* 按钮上标出自己要花多少筹码 */
+.present-cost {
+    font-size: 11px;
+    font-weight: 700;
+    color: #ff8b7a;
+}
+
+.present-list {
+    display: flex;
+    gap: 8px;
+}
+
+.present-item {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 4px;
+    border-radius: 12px;
+    border: 1px solid #6b5a2a;
+    background: linear-gradient(180deg, #3a2f18, #241d0e);
+    color: #ffe0a3;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.present-item img {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+.present-item:active {
+    transform: translateY(1px);
+    background: linear-gradient(180deg, #4a3c1e, #2c2410);
+}
+
+/* 飞行中的道具 */
+.flying-item {
+    position: absolute;
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, .55));
+    will-change: transform;
+}
+
+/* 命中目标后放大淡出 */
+.hit-item {
+    position: absolute;
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+    filter: drop-shadow(0 5px 8px rgba(0, 0, 0, .6));
+}
+
+/* 第一次进桌时的一次性提示 */
+.present-hint {
+    position: fixed;
+    left: 50%;
+    top: 64px;
+    transform: translateX(-50%);
+    z-index: 80;
+    max-width: 88%;
+    padding: 9px 14px;
+    border-radius: 999px;
+    background: rgba(20, 14, 6, .94);
+    border: 1px solid #6b5a2a;
+    color: #ffe0a3;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, .55);
+    pointer-events: none;
+}
+
+body.landscape-ui .present {
+    left: 50%;
+    right: auto;
+    bottom: 14px;
+    transform: translateX(-50%);
+    width: min(520px, 88%);
+    border: 2px solid #6b4423;
+    border-radius: 14px;
+}
+
+body.landscape-ui .chat {
+    left: 50%;
+    right: auto;
+    bottom: 14px;
+    transform: translateX(-50%);
+    width: min(520px, 88%);
+    max-height: 74%;
+    border: 2px solid #6b4423;
+    border-radius: 14px;
+    box-shadow: 0 12px 34px rgba(0, 0, 0, .7);
+}

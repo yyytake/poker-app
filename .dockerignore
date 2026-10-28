@@ -1,0 +1,20 @@
+__pycache__/
+*.pyc
+*.pyo
+
+.git/
+.gitignore
+
+# 备份 / 历史版本文件（不参与运行）
+*backup*
+*before_*
+*.backup*
+
+# 测试脚本
+test_*.py
+
+# 运行期数据（容器内会自动创建）
+data/
+
+# 文档
+*.md

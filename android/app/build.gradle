@@ -1,0 +1,62 @@
+plugins {
+    id "com.android.application"
+}
+
+android {
+    namespace "com.family.poker"
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.family.poker"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+
+    // 自签名。
+    //
+    // 密钥和密码都不进仓库：公开仓库里只要出现签名材料，
+    // 别人就能签一个「跟你同签名」的安装包，安卓会当成
+    // 正规升级来装。CI 从 GitHub Secrets 还原密钥、密码走
+    // 环境变量；本机想打包就自己 export 下面几个变量：
+    //
+    //   POKER_KEYSTORE        密钥路径（默认 ../poker.keystore）
+    //   POKER_STORE_PASSWORD  密钥库密码
+    //   POKER_KEY_ALIAS       别名（默认 poker）
+    //   POKER_KEY_PASSWORD    别名密码（默认与库密码相同）
+    signingConfigs {
+        release {
+            storeFile file(
+                System.getenv("POKER_KEYSTORE")
+                ?: "../poker.keystore"
+            )
+            storePassword System.getenv("POKER_STORE_PASSWORD")
+            keyAlias System.getenv("POKER_KEY_ALIAS") ?: "poker"
+            keyPassword (
+                System.getenv("POKER_KEY_PASSWORD")
+                ?: System.getenv("POKER_STORE_PASSWORD")
+            )
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            shrinkResources false
+            signingConfig signingConfigs.release
+        }
+        debug {
+            signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    lint {
+        abortOnError false
+    }
+}

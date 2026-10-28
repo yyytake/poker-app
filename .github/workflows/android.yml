@@ -1,0 +1,124 @@
+name: 构建 Android APK
+
+# 改 android/ 下的东西就会自动打包；也可以在 Actions 页面手动触发
+on:
+  push:
+    paths:
+      - "android/**"
+      - ".github/workflows/android.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: 取出代码
+        uses: actions/checkout@v4
+
+      - name: 准备 JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      # 不用 android-actions/setup-android：它会去装早就下架的
+      # 旧 "tools" 包，直接报 Failed to find package 'tools'。
+      # runner 上本来就带了 Android SDK 和 cmdline-tools。
+      - name: 准备 Android SDK
+        run: |
+          SDK="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+          echo "SDK 目录: $SDK"
+
+          if [ -z "$SDK" ] || [ ! -d "$SDK" ]; then
+            echo "runner 上没有 Android SDK" >&2
+            exit 1
+          fi
+
+          if ! command -v sdkmanager >/dev/null 2>&1; then
+            if [ -x "$SDK/cmdline-tools/latest/bin/sdkmanager" ]; then
+              echo "$SDK/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+              export PATH="$SDK/cmdline-tools/latest/bin:$PATH"
+            else
+              # 兜底：自己拉一份 cmdline-tools
+              curl -sSL -o /tmp/ct.zip \
+                https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+              unzip -q /tmp/ct.zip -d /tmp/ct
+              mkdir -p "$SDK/cmdline-tools"
+              mv /tmp/ct/cmdline-tools "$SDK/cmdline-tools/latest"
+              echo "$SDK/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+              export PATH="$SDK/cmdline-tools/latest/bin:$PATH"
+            fi
+          fi
+
+          sdkmanager --version
+
+          yes | sdkmanager --licenses > /dev/null 2>&1 || true
+          sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools"
+
+      - name: 准备 Gradle 8.9
+        run: |
+          curl -sSL -o /tmp/gradle.zip \
+            https://services.gradle.org/distributions/gradle-8.9-bin.zip
+          unzip -q /tmp/gradle.zip -d "$HOME"
+          echo "$HOME/gradle-8.9/bin" >> "$GITHUB_PATH"
+
+      # 签名密钥不在仓库里，从 Secrets 还原。
+      #
+      # 仓库是公开的，签名材料绝不能进代码：
+      # 密钥 + 密码一旦公开，别人就能签一个「同签名」的
+      # 安装包，安卓会把它当成正规升级来装。
+      #
+      # 需要的 Secrets（Settings → Secrets and variables → Actions）：
+      #   KEYSTORE_BASE64    密钥文件的 base64（整行，不要换行）
+      #   KEYSTORE_PASSWORD  密钥库密码
+      #   KEYSTORE_ALIAS     别名，一般就是 poker
+      - name: 还原签名密钥
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "::error::缺少 Secrets.KEYSTORE_BASE64，无法签名"
+            echo "把 poker.keystore 转成 base64 存进仓库 Secrets 再重跑" >&2
+            exit 1
+          fi
+
+          echo "$KEYSTORE_BASE64" | base64 -d > android/poker.keystore
+
+          if [ ! -s android/poker.keystore ]; then
+            echo "::error::还原出来的密钥是空的，检查 KEYSTORE_BASE64"
+            exit 1
+          fi
+
+          echo "密钥已还原，$(stat -c%s android/poker.keystore) 字节"
+
+      - name: 构建 release APK
+        working-directory: android
+        env:
+          POKER_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          POKER_KEY_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
+          POKER_KEY_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: gradle assembleRelease --no-daemon
+
+      - name: 收集产物
+        run: |
+          mkdir -p dist
+          cp android/app/build/outputs/apk/release/app-release.apk \
+             "dist/德州扑克.apk"
+          ls -la dist
+
+      - name: 上传 APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: poker-apk
+          path: dist/*.apk
+          if-no-files-found: error
+          retention-days: 90
+
+      # 收尾时必须把还原出来的密钥删掉：
+      # runner 上的工作目录虽然用完就丢，但这一步很便宜，
+      # 万一以后改成自托管 runner，不至于留一份密钥在磁盘上。
+      - name: 清理签名密钥
+        if: always()
+        run: rm -f android/poker.keystore

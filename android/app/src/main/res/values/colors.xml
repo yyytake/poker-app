@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 跟网页里的配色对齐，启动时才不会闪一下白屏 -->
+    <color name="bg">#141009</color>
+    <color name="topbar">#10251c</color>
+    <color name="iconBg">#0A3320</color>
+    <color name="splashText">#F2E7CF</color>
+    <color name="splashSub">#9FC5B4</color>
+</resources>

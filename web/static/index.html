@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>德州扑克 · 联机</title>
+
+<!-- PWA：加到桌面后全屏运行，看不出是网页 -->
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#10251c">
+<link rel="icon" href="/static/icon-192.png">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="德州扑克">
+
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<!-- ==============================
+     加入房间
+     ============================== -->
+<div id="joinScreen" class="screen">
+    <div class="join-card">
+        <h1>德州扑克</h1>
+
+        <label>你的名字</label>
+        <input id="nameInput" type="text" maxlength="12" placeholder="例如：老王">
+
+        <label>房间号</label>
+        <input id="roomInput" type="text" inputmode="numeric" maxlength="6" placeholder="留空则创建新房间">
+
+        <div class="advanced-toggle" id="advancedToggle">高级设置 ▾</div>
+
+        <div id="advancedPanel" class="advanced-panel hidden">
+            <label>起始筹码</label>
+            <input id="chipsInput" type="number" value="1000" min="100" step="100">
+
+            <label>小盲 / 大盲</label>
+            <div class="blind-row">
+                <input id="sbInput" type="number" value="10" min="1">
+                <span>/</span>
+                <input id="bbInput" type="number" value="20" min="2">
+            </div>
+        </div>
+
+        <button id="joinButton" class="primary">进入牌桌</button>
+
+        <div id="joinError" class="error"></div>
+
+        <div class="room-list">
+            <div class="room-list-title">当前房间</div>
+            <div id="roomList">加载中…</div>
+        </div>
+
+        <!-- 只在浏览器里提示；已经装成 App 就不显示 -->
+        <div id="installHint" class="install-hint hidden">
+            💡 在浏览器菜单里点「添加到主屏幕」，就能当 App 用
+        </div>
+    </div>
+</div>
+
+<!-- ==============================
+     牌桌
+     ============================== -->
+<div id="gameScreen" class="screen hidden">
+
+    <header class="topbar">
+        <div class="room-info">
+            <span class="room-code" id="roomCode">----</span>
+            <button id="copyButton" class="mini" title="复制房间号">复制</button>
+        </div>
+        <div class="hand-info">
+            <span id="handInfo">等待开始</span>
+        </div>
+        <div class="conn" id="connState">●</div>
+        <button id="voiceButton" class="mini tool" title="快捷语音">🗣</button>
+        <button id="chatButton" class="mini tool" title="牌桌聊天">💬<span id="chatBadge" class="chat-badge hidden">0</span></button>
+        <button id="bgmButton" class="mini tool" title="声音设置（音乐 / 音效 / 语音）">♪</button>
+    </header>
+
+    <!-- 牌桌 -->
+    <div class="table-wrap">
+        <div class="table">
+            <!-- 牌堆（发牌动画的起点） -->
+            <div id="deck" class="deck" aria-hidden="true">
+                <div class="deck-card"></div>
+                <div class="deck-card"></div>
+                <div class="deck-card"></div>
+            </div>
+
+            <div class="table-inner">
+                <div id="phaseInfo" class="phase"></div>
+                <div id="potInfo" class="pot">底池 0</div>
+                <div id="communityCards" class="community"></div>
+            </div>
+            <div id="seats" class="seats"></div>
+
+            <!-- 快捷语音在座位上方弹出的文字 -->
+            <div id="bubbles" class="bubble-layer"></div>
+
+            <!-- 互动道具飞行的图层 -->
+            <div id="effects" class="bubble-layer"></div>
+
+            <!-- 弹幕：牌桌底部的滚动播报条 -->
+            <div id="danmu" class="danmu" aria-hidden="true"></div>
+        </div>
+        <div id="turnTimer" class="turn-timer hidden"></div>
+    </div>
+
+    <!-- 结果 -->
+    <div id="resultPanel" class="result hidden"></div>
+
+    <!-- 我的底牌 -->
+    <div id="myCards" class="my-cards"></div>
+
+    <!-- 提示 -->
+    <div id="message" class="message"></div>
+
+    <!-- 操作区 -->
+    <div id="actionBar" class="action-bar hidden">
+        <div class="action-buttons">
+            <button id="foldButton" class="act fold">弃牌</button>
+            <button id="checkButton" class="act check">过牌</button>
+            <button id="callButton" class="act call">跟注</button>
+            <button id="raiseButton" class="act raise">加注</button>
+            <button id="allInButton" class="act allin">ALL IN</button>
+        </div>
+
+        <div id="raisePanel" class="raise-panel hidden">
+            <div class="raise-head">
+                <span>加注到</span>
+                <span id="raiseValue" class="raise-value">0</span>
+            </div>
+            <input id="raiseSlider" type="range" value="0">
+            <div id="raiseTicks" class="raise-ticks"></div>
+            <div class="raise-quick">
+                <button class="mini" data-preset="min">最小</button>
+                <button class="mini" data-preset="half">½池</button>
+                <button class="mini" data-preset="pot">满池</button>
+                <button class="mini" data-preset="max">全下</button>
+            </div>
+            <div class="raise-input-row">
+                <span>直接输入</span>
+                <input id="raiseInput" type="number" min="0" step="1">
+            </div>
+            <div class="raise-actions">
+                <button id="raiseCancel" class="mini">取消</button>
+                <button id="raiseConfirm" class="primary small">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 牌局控制 -->
+    <div id="controlBar" class="control-bar hidden">
+        <button id="readyButton" class="primary hidden">准备下一手</button>
+        <button id="nextHandButton" class="primary hidden">开始牌局</button>
+        <button id="buyInButton" class="mini">买入</button>
+        <button id="ledgerButton" class="mini">账本</button>
+    </div>
+
+    <!-- 买入 / 归还 -->
+    <div id="buyInPanel" class="buyin hidden">
+        <div class="buyin-head">金额</div>
+        <input id="buyInAmount" type="number" min="1" step="100">
+        <div class="buyin-quick">
+            <button class="mini" data-amount="100">+100</button>
+            <button class="mini" data-amount="500">+500</button>
+            <button class="mini" data-amount="1000">+1000</button>
+        </div>
+        <label class="checkbox">
+            <input id="buyInLoan" type="checkbox"> 记为贷款（计入累计买入）
+        </label>
+        <div class="buyin-actions">
+            <button id="buyInCancel" class="mini">取消</button>
+            <button id="buyInReturn" class="mini">归还筹码</button>
+            <button id="buyInConfirm" class="primary small">确定买入</button>
+        </div>
+        <div class="buyin-tip">
+            归还是把多余的筹码还回庄家：筹码和累计买入一起减，
+            盈亏不受影响，等这手打完才能操作。
+        </div>
+    </div>
+
+    <!-- 长期账本 -->
+    <div id="ledgerPanel" class="ledger hidden">
+        <div class="ledger-title">长期账本（按名字累计）</div>
+        <div id="ledgerTable" class="ledger-table"></div>
+        <div id="ledgerBuyins" class="ledger-buyins"></div>
+    </div>
+
+    <div id="waitingBar" class="waiting hidden"></div>
+
+    <!-- 托管：交给 AI 代打，单次最长 100 秒 -->
+    <button id="autoButton" class="auto">托管</button>
+
+    <!-- 日志 -->
+    <details class="log-panel">
+        <summary>牌局记录</summary>
+        <div id="logList" class="log-list"></div>
+    </details>
+
+    <button id="leaveButton" class="leave">离开牌桌</button>
+
+    <!-- 长按玩家名片弹出的互动菜单 -->
+    <div id="presentPanel" class="present hidden">
+        <div class="present-head">
+            <span id="presentTitle">对 对方</span>
+            <button id="presentClose" class="mini">收起</button>
+        </div>
+
+        <!-- 这个人被送过多少：点名片就能看 -->
+        <div id="presentStats" class="present-stats"></div>
+
+        <div id="presentList" class="present-list">
+            <button class="present-item" data-item="flower">
+                <img src="/static/anim/flower.png" alt="">
+                <span>送花</span>
+                <span class="present-cost" data-cost="flower"></span>
+            </button>
+            <button class="present-item" data-item="wine">
+                <img src="/static/anim/wine.png" alt="">
+                <span>送酒</span>
+                <span class="present-cost" data-cost="wine"></span>
+            </button>
+            <button class="present-item" data-item="egg">
+                <img src="/static/anim/egg.png" alt="">
+                <span>扔鸡蛋</span>
+                <span class="present-cost" data-cost="egg"></span>
+            </button>
+            <button class="present-item" data-item="shoe">
+                <img src="/static/anim/shoe.png" alt="">
+                <span>扔拖鞋</span>
+                <span class="present-cost" data-cost="shoe"></span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 快捷语音 -->
+    <div id="voicePanel" class="voice hidden">
+        <div class="voice-head">
+            <span>快捷语音</span>
+            <button id="voiceClose" class="mini">收起</button>
+        </div>
+        <div id="voiceList" class="voice-list"></div>
+    </div>
+
+    <!-- 牌桌聊天（含表情） -->
+    <div id="chatPanel" class="chat hidden">
+        <div class="chat-head">
+            <span>牌桌聊天</span>
+            <button id="chatClose" class="mini">收起</button>
+        </div>
+        <div id="chatList" class="chat-list"></div>
+        <div id="emojiGrid" class="emoji-grid hidden"></div>
+        <div class="chat-input-row">
+            <button id="emojiToggle" class="mini emoji-toggle" title="发个表情">😀</button>
+            <input id="chatInput" type="text" maxlength="80" placeholder="说点什么…">
+            <button id="chatSend" class="primary small">发送</button>
+        </div>
+    </div>
+
+    <!-- 声音设置：三路各自独立开关 -->
+    <div id="soundPanel" class="sound-panel hidden">
+        <div class="sound-head">
+            <span>声音</span>
+            <button id="soundClose" class="mini">收起</button>
+        </div>
+
+        <label class="sound-row">
+            <span class="sound-name">背景音乐</span>
+            <input id="soundBgm" type="checkbox" class="switch">
+        </label>
+
+        <label class="sound-row">
+            <span class="sound-name">游戏音效</span>
+            <input id="soundSfx" type="checkbox" class="switch">
+        </label>
+
+        <label class="sound-row">
+            <span class="sound-name">快捷语音</span>
+            <input id="soundVoice" type="checkbox" class="switch">
+        </label>
+
+        <div class="sound-tip">
+            关掉哪一路，那一路就完全不出声
+        </div>
+    </div>
+
+</div>
+
+<!-- 背景音乐：把 mp3 放到 web/static/bgm.mp3 即可 -->
+<audio id="bgm" loop preload="none" src="/static/bgm.mp3"></audio>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

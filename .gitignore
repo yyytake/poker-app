@@ -1,0 +1,36 @@
+# Python 缓存
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# 运行期数据：账本里有名字和盈亏，不上传
+data/
+
+# 备份 / 历史版本文件
+*.backup
+*.backup.*
+*backup*
+*before_*
+gamebp.py
+game_bp.py
+playerbp.py
+gae.py
+plaer.py
+main_old.py
+fix_game_showdown.py
+_wtest.txt
+
+# 测试脚本
+test_*.py
+run_tests.sh
+
+# 本地临时脚本
+_*.sh
+_*.py
+
+# 签名密钥：只在 GitHub Secrets 里，绝不进仓库
+*.keystore
+*.jks
+*.p12
